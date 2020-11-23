@@ -78,14 +78,14 @@ def get_input():
     return input_data
 
 
-def plot_line(beta):
+def plot_line(alpha,beta):
     x_test = [[x] for x in range(10)]
     y_test = [ ]
     for x in x_test:
         temp_sum_test =  0
         for xi,wi in zip(x, beta):
             temp_sum_test += xi*wi
-        y_test.append(temp_sum_test)
+        y_test.append(alpha+temp_sum_test)
         
     plt.scatter(dataset_x, dataset_y,  color='black')
     plt.plot(x_test, y_test, color='blue', linewidth=2)
@@ -109,12 +109,7 @@ def main():
     prediction = alpha + temp_sum
     print(f"Final Prediction is : {prediction} ")
 
-    plot_line(beta)
-
-    
-    
-
-    
+    plot_line(alpha, beta)
 
 
 if __name__ == "__main__":
