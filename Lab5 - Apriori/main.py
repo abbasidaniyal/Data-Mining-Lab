@@ -31,6 +31,14 @@ dataset = [
 # ]
 
 
+# dataset = [
+#     (100, {"F", "A", 'D', "B"}),
+#     (200, {"D", "A", 'C', 'E', 'B'}),
+#     (300, {"C", "A", 'B', 'E'}),
+#     (400, {"B", "A", 'D'}),
+# ]
+
+
 def get_support_count(items):
     cnt = 0
     for tid, item in dataset:
@@ -64,11 +72,9 @@ def get_candidates(frequest_itemset, K):
         for item_j in frequest_itemset:
 
             generated_set = item_i.union(item_j)
-
             subsets = findsubsets(generated_set, K-1)
-
+            
             if len(generated_set) == K and is_sub_list(subsets, frequest_itemset):
-
                 candidate_set.append(generated_set)
 
     return tuple(candidate_set)
@@ -83,18 +89,42 @@ def find_frequent_itemsets(min_sup):
         one_itemset.update(item)
 
     candidate_itemset = tuple([{item} for item in one_itemset])
+    print("=================================")
+    print("Frequent Itemsets")
+    print("=================================")
 
+    print(f"K=1")
+    print("Candidate Itemsets")
+    [print("Items : " + str(candidate_item) + " Support: " +
+           str(get_support_count(candidate_item))) for candidate_item in candidate_itemset]
+
+    K_frequest_itemets = [
+        one_item for one_item in candidate_itemset if get_support_count(one_item) >= min_sup]
     frequest_itemsets.append(
-        tuple([one_item for one_item in candidate_itemset if get_support_count(one_item) >= min_sup]))
+        tuple(K_frequest_itemets))
+
+    print("Frequent Itemsets")
+    [print("Items : " + str(frequest_itemset) + " Support: " +
+           str(get_support_count(frequest_itemset))) for frequest_itemset in K_frequest_itemets]
 
     for K in range(1, len(dataset)):
         candidate_itemset = get_candidates(frequest_itemsets[K-1], K=K+1)
+
+        print(f"K={K+1}")
+        print("Candidate Itemsets")
+        [print("Items : " + str(candidate_item) + " Support: " +
+               str(get_support_count(candidate_item))) for candidate_item in candidate_itemset]
 
         K_frequest_itemets = []
         for candidate_item in candidate_itemset:
             if get_support_count(candidate_item) >= min_sup:
                 if candidate_item not in K_frequest_itemets:
                     K_frequest_itemets.append(candidate_item)
+
+        print("Frequent Itemsets")
+        [print("Items : " + str(K_frequest_itemet) + " Support: " +
+               str(get_support_count(K_frequest_itemet))) for K_frequest_itemet in K_frequest_itemets]
+
         if len(K_frequest_itemets) == 0:
             break
 
@@ -125,8 +155,10 @@ def get_rules(frequest_itemset, min_confidence):
             if sub_set and (x:= frequest_itemset - sub_set):
                 confidence = get_support_count(
                     frequest_itemset) / get_support_count(sub_set) * 100
+                support = get_support_count(
+                    frequest_itemset) / len(dataset) * 100
                 if confidence >= min_confidence:
-                    rules.append((sub_set, x, confidence))
+                    rules.append((sub_set, x, confidence, support))
                     to_process.append(sub_set)
     return rules
 
@@ -151,10 +183,11 @@ def main():
             continue
         print(f"Rules for {frequest_itemset} -")
 
-        for rule_x, rule_y, confidence in rules:
+        for rule_x, rule_y, confidence, support in rules:
             if rule_y == set():
                 rule_y = "{}"
-            print(f"{rule_x} -> {rule_y}  Confidence :{confidence}")
+            print(
+                f"{rule_x} -> {rule_y}  Confidence : {confidence} Support : {support}")
     print("==========================")
 
 
